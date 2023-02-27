@@ -1,0 +1,215 @@
+---
+- name: Make Folders
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - /home/tautulli
+  become: true
+
+- name: Start transmission Docker Image on Remote Server
+  docker_container:
+    name: transmission
+    hostname: transmission
+    image: linuxserver/transmission
+    restart_policy: unless-stopped
+    state: started
+    networks:
+      - name: plex_infra
+        ipv4_address: 172.28.0.2
+    volumes:
+      - /home/torrents/config:/config
+      - /home/torrents/downloading:/downloads
+    ports:
+      - 9091:9091
+      - 51413:51413
+      - 51413:51413/udp
+    env:
+      PUID: "911"
+      PGID: "911"
+      TZ: Pacific/Auckland
+    privileged: yes
+  become: true
+
+- name: Start bazarr Docker Image on Remote Server
+  docker_container:
+    name: bazarr
+    hostname: bazarr
+    image: linuxserver/bazarr
+    restart_policy: unless-stopped
+    networks:
+      - name: plex_infra
+        ipv4_address: 172.28.0.3
+    state: started
+    volumes:
+      - /home/bazarr:/config
+      - /home/Movies:/movies
+      - /home/TV:/tv
+    ports:
+      - 6767:6767
+    env:
+      PUID: "911"
+      PGID: "911"
+      TZ: Pacific/Auckland
+    privileged: yes
+  become: true
+
+- name: Start prowlarr Docker Image on Remote Server
+  docker_container:
+    name: prowlarr
+    hostname: prowlarr
+    image: linuxserver/prowlarr:develop
+    restart_policy: unless-stopped
+    state: started
+    networks:
+      - name: plex_infra
+        ipv4_address: 172.28.0.4
+    volumes:
+      - /home/prowlarr/config:/config
+    ports:
+      - 9696:9696
+    env:
+      PUID: "911"
+      PGID: "911"
+      TZ: Pacific/Auckland
+    privileged: yes
+  become: true
+
+- name: Start sonarr Docker Image on Remote Server
+  docker_container:
+    name: sonarr
+    hostname: sonarr
+    image: linuxserver/sonarr
+    restart_policy: unless-stopped
+    state: started
+    networks:
+      - name: plex_infra
+        ipv4_address: 172.28.0.5
+    volumes:
+      - /home/sonarr/config:/config
+      - /home/torrents/downloading:/downloads
+      - /home/TV:/tv
+      - /mnt/nas/TV:/mnt/nas/TV/
+    ports:
+      - 8989:8989
+    env:
+      PUID: "911"
+      PGID: "911"
+      TZ: Pacific/Auckland
+    privileged: yes
+  become: true
+
+- name: Start lidarr Docker Image on Remote Server
+  docker_container:
+    name: lidarr
+    hostname: lidarr
+    image: linuxserver/lidarr
+    restart_policy: unless-stopped
+    state: started
+    networks:
+      - name: plex_infra
+        ipv4_address: 172.28.0.15
+    volumes:
+      - /home/lidarr:/config
+      - /home/torrents/downloading:/downloads
+      - /home/music:/music
+    ports:
+      - 8686:8686
+    env:
+      PUID: "911"
+      PGID: "911"
+      TZ: Pacific/Auckland
+    privileged: yes
+  become: true
+
+- name: Start Radarr Docker Image on Remote Server
+  docker_container:
+    name: radarr
+    hostname: radarr
+    image: linuxserver/radarr
+    restart_policy: unless-stopped
+    state: started
+    networks:
+      - name: plex_infra
+        ipv4_address: 172.28.0.6
+    volumes:
+      - /home/radarr/config:/config
+      - /home/torrents/downloading:/downloads
+      - /home/Movies:/movies
+      - /mnt/nas/Movies:/mnt/nas/Movies/
+    ports:
+      - 7878:7878
+    env:
+      PUID: "911"
+      PGID: "911"
+      TZ: Pacific/Auckland
+    privileged: yes
+  become: true
+
+- name: Start tautulli on Remote Server
+  docker_container:
+    name: tautulli
+    hostname: tautulli
+    image: linuxserver/tautulli
+    restart_policy: unless-stopped
+    state: started
+    recreate: no
+    networks:
+      - name: plex_infra
+        ipv4_address: 172.28.0.16
+    volumes:
+      - /home/tautulli:/config
+    ports:
+      - 8181:8181
+    env:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: Pacific/Auckland
+    privileged: yes
+  become: true
+
+- name: Start Plex Docker Image on Remote Server
+  docker_container:
+    name: plex
+    hostname: plexserver
+    image: plexinc/pms-docker
+    restart_policy: unless-stopped
+    state: started
+    recreate: no
+    networks:
+      - name: plex_infra
+        ipv4_address: 172.28.0.9
+    volumes:
+      - /home/plex/config:/config
+      - /home/plex/transcode:/transcode
+      - /home/TV:/TV
+      - /home/Movies:/Movies
+      - /home/music:/music
+      - /mnt/nas/Movies:/mnt/nas/Movies
+      - /mnt/nas/TV:/mnt/nas/TV
+    ports:
+      - 32400:32400
+      - 32400:32400/udp
+      - 3005:3005
+      - 8324:8324
+      - 32469:32469
+      - 32469:32469/udp
+      - 1900:1900
+      - 1900:1900/udp
+      - 32410:32410
+      - 32410:32410/udp
+      - 32412:32412
+      - 32412:32412/udp
+      - 32413:32413
+      - 32413:32413/udp
+      - 32414:32414
+      - 32414:32414/udp
+    env:
+      PLEX_UID: "911"
+      PLEX_GID: "911"
+      UID: "911"
+      GID: "911"
+      TZ: Pacific/Auckland
+      ADVERTISE_IP: "http://x.x.x.x:32400/"
+    privileged: yes
+  become: true

@@ -1,0 +1,28 @@
+- name: Log into DockerHub
+  docker_login:
+    username: 
+    password: 
+    email:
+
+- name: Retrieve Develop Images
+  docker_image:
+    name: linuxserver/prowlarr
+    tag: develop
+    state: present
+  become: true
+
+- name: Pull Latest Image on Remote Server
+  docker_image:
+    name: "{{ item }}"
+    state: present
+  become: true
+  with_items:
+    - linuxserver/radarr
+    - linuxserver/bazarr
+    - linuxserver/sonarr
+    - linuxserver/lidarr
+    - linuxserver/transmission
+    - linuxserver/tautulli
+    - plexinc/pms-docker
+    - dnsforge/xteve
+    - pyouroboros/ouroboros

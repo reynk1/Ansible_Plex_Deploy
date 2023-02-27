@@ -1,0 +1,33 @@
+
+- name: Create a network with options
+  docker_network:
+    name: plex_infra
+    ipam_config:
+      - subnet: 172.28.0.0/16
+
+- name: Retrieve Docker Images
+  import_tasks: docker_images.yml
+
+- name: Setup Patching Service
+  docker_container:
+    name: ouroboros
+    hostname: ouroboros
+    image: pyouroboros/ouroboros
+    restart_policy: unless-stopped
+    state: started
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    env:
+      CLEANUP: "true"
+      INTERVAL: "300"
+      LOG_LEVEL: info
+      SELF_UPDATE: "true"
+      TZ: Pacific/Auckland
+    privileged: yes
+  become: true
+
+- name: Setup IPTV platform
+  import_tasks: xTeVe.yml
+
+- name: Setup Plex platform
+  import_tasks: plex.yml

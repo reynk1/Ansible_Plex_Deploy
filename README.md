@@ -1,2 +1,2 @@
-# Ansible_Plex_Deploy
-Deploys Plex and supporting services on a Docker instance
+** Please Setup
+Deploys Plex and IPTV (xTeVe) with supporting services to enable management automation

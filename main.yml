@@ -1,0 +1,8 @@
+---
+  
+- name: Deply Plex Platform
+  hosts: all
+
+  tasks:
+    - import_role:
+        name: docker

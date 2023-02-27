@@ -1,0 +1,40 @@
+---
+  
+- name: Start xteve-nz Docker Image on Remote Server
+  docker_container:
+    name: xteve-nz
+    hostname: xteve-nz
+    image: dnsforge/xteve
+    restart_policy: unless-stopped
+    state: started
+    networks:
+      - name: plex_infra
+        ipv4_address: 172.28.0.7
+    volumes:
+      - /home/xteve-nz/conf:/home/xteve/conf
+    ports:
+      - 34400:34400
+    env:
+      TZ: Pacific/Auckland
+    privileged: yes
+  become: true
+
+- name: Start xteve-my Docker Image on Remote Server
+  docker_container:
+    name: xteve-my
+    hostname: xteve-my
+    image: dnsforge/xteve
+    restart_policy: unless-stopped
+    state: started
+    networks:
+      - name: plex_infra
+        ipv4_address: 172.28.0.8
+    volumes:
+      - /home/xteve/conf:/home/xteve/conf
+    ports:
+      - 34401:34401
+    env:
+      TZ: Pacific/Auckland
+      XTEVE_PORT: "34401"
+    privileged: yes
+  become: true
